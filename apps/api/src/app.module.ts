@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { buildTypeOrmOptions } from "./config/typeorm.config";
 import { TasksModule } from "./tasks/tasks.module";
+import { TaskTypesModule } from "./task-types/task-types.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { TasksModule } from "./tasks/tasks.module";
       inject: [ConfigService],
       useFactory: buildTypeOrmOptions,
     }),
+    TaskTypesModule,
+    UsersModule,
     TasksModule,
   ],
 })

@@ -1,14 +1,21 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Task } from "./task.entity";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
+import { TaskTypeRegistry } from "../task-types/task-type.registry";
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task) private readonly tasksRepo: Repository<Task>,
+    private readonly taskTypeRegistry: TaskTypeRegistry,
   ) {}
 
   findAll(): Promise<Task[]> {
@@ -23,23 +30,40 @@ export class TasksService {
     return task;
   }
 
-  create(dto: CreateTaskDto): Promise<Task> {
+  async create(dto: CreateTaskDto): Promise<Task> {
+    const definition = this.taskTypeRegistry.get(dto.taskType);
+    const initialStatus = definition.getStatuses()[0]?.value;
+    const result = await definition.validateData(initialStatus, dto.data ?? {});
+    if (!result.valid) {
+      throw new BadRequestException(result.errors);
+    }
+
     const task = this.tasksRepo.create({
       title: dto.title,
       description: dto.description ?? null,
-      status: "todo",
+      taskType: dto.taskType,
+      status: initialStatus,
+      closed: false,
+      data: result.data ?? {},
+      userId: dto.assigneeId,
     });
     return this.tasksRepo.save(task);
   }
 
   async update(id: string, dto: UpdateTaskDto): Promise<Task> {
     const task = await this.findOne(id);
+    if (task.closed) {
+      throw new UnprocessableEntityException("Closed tasks are immutable");
+    }
     Object.assign(task, dto);
     return this.tasksRepo.save(task);
   }
 
   async remove(id: string): Promise<void> {
     const task = await this.findOne(id);
+    if (task.closed) {
+      throw new UnprocessableEntityException("Closed tasks are immutable");
+    }
     await this.tasksRepo.remove(task);
   }
 }

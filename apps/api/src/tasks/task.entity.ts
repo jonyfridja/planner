@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import type { TaskStatus } from "@planner/shared";
 import { User } from "../users/user.entity";
 
 @Entity({ name: "tasks" })
@@ -21,18 +20,27 @@ export class Task {
   @Column({ type: "text", nullable: true })
   description!: string | null;
 
-  @Column({ type: "varchar", default: "todo" })
-  status!: TaskStatus;
+  @Column({ type: "varchar" })
+  taskType!: string;
+
+  @Column({ type: "int" })
+  status!: number;
+
+  @Column({ type: "boolean", default: false })
+  closed!: boolean;
+
+  @Column({ type: "jsonb", default: {} })
+  data!: Record<string, unknown>;
 
   @ManyToOne(() => User, (user) => user.tasks, {
-    nullable: true,
-    onDelete: "SET NULL",
+    nullable: false,
+    onDelete: "RESTRICT",
   })
   @JoinColumn({ name: "userId" })
-  user!: User | null;
+  user!: User;
 
-  @Column({ type: "uuid", nullable: true })
-  userId!: string | null;
+  @Column({ type: "uuid" })
+  userId!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

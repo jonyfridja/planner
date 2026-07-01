@@ -1,10 +1,5 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import type {
-  TaskStatus,
-  UpdateTaskDto as UpdateTaskDtoShape,
-} from "@planner/shared";
-
-const TASK_STATUSES: TaskStatus[] = ["todo", "in_progress", "done"];
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import type { UpdateTaskDto as UpdateTaskDtoShape } from "@planner/shared";
 
 export class UpdateTaskDto implements UpdateTaskDtoShape {
   @IsString()
@@ -15,8 +10,4 @@ export class UpdateTaskDto implements UpdateTaskDtoShape {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @IsIn(TASK_STATUSES)
-  @IsOptional()
-  status?: TaskStatus;
 }
