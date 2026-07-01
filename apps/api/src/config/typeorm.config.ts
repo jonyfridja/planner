@@ -1,6 +1,7 @@
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { Task } from "../tasks/task.entity";
+import { User } from "../users/user.entity";
 
 export function buildTypeOrmOptions(
   config: ConfigService,
@@ -12,7 +13,7 @@ export function buildTypeOrmOptions(
     username: config.get<string>("DB_USERNAME", "planner"),
     password: config.get<string>("DB_PASSWORD", "planner"),
     database: config.get<string>("DB_NAME", "planner"),
-    entities: [Task],
+    entities: [Task, User],
     synchronize: config.get<string>("NODE_ENV", "development") !== "production",
   };
 }
