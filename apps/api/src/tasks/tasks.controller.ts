@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import { TasksService } from "./tasks.service";
 import { TaskWorkflowService } from "../task-types/task-workflow.service";
@@ -13,6 +14,7 @@ import { CreateTaskDto } from "./dto/create-task.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 import { TransitionTaskDto } from "./dto/transition-task.dto";
 import { AssigneeActionDto } from "./dto/assignee-action.dto";
+import { FindTasksDto } from "./dto/find-tasks.dto";
 
 @Controller("tasks")
 export class TasksController {
@@ -22,8 +24,8 @@ export class TasksController {
   ) {}
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@Query() query: FindTasksDto) {
+    return this.tasksService.findAll(query);
   }
 
   @Get(":id")

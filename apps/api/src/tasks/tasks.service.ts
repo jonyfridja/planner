@@ -5,10 +5,11 @@ import {
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { FindOptionsWhere, ILike, Repository } from "typeorm";
 import { Task } from "./task.entity";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
+import { FindTasksDto } from "./dto/find-tasks.dto";
 import { TaskTypeRegistry } from "../task-types/task-type.registry";
 
 @Injectable()
@@ -18,8 +19,15 @@ export class TasksService {
     private readonly taskTypeRegistry: TaskTypeRegistry,
   ) {}
 
-  findAll(): Promise<Task[]> {
-    return this.tasksRepo.find({ order: { createdAt: "DESC" } });
+  findAll(query: FindTasksDto): Promise<Task[]> {
+    const where: FindOptionsWhere<Task> = {};
+    if (query.assigneeId) {
+      where.userId = query.assigneeId;
+    }
+    if (query.search) {
+      where.title = ILike(`%${query.search}%`);
+    }
+    return this.tasksRepo.find({ where, order: { createdAt: "DESC" } });
   }
 
   async findOne(id: string): Promise<Task> {
