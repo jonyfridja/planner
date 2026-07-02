@@ -1,6 +1,6 @@
 import type { TaskTypeSummary } from "@planner/shared";
 
-const BASE_URL = "/api/task-types";
+const BASE_URL = `${import.meta.env.BASE_URL}api/task-types`;
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
