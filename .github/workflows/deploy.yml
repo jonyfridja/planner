@@ -2,8 +2,13 @@ name: Deploy to Raspberry Pi
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch: {}
+
+env:
+  PI_USERNAME: jonyfridja
+  CF_SSH_HOSTNAME: ssh.jonyfridja.com
+  PI_DEPLOY_PATH: /home/jonyfridja/projects/planner
 
 jobs:
   deploy:
@@ -25,5 +30,5 @@ jobs:
           ssh -o "ProxyCommand=cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
               -o StrictHostKeyChecking=accept-new \
               -i ~/.ssh/deploy_key \
-              "${{ secrets.PI_USERNAME }}@${{ secrets.CF_SSH_HOSTNAME }}" \
-              "cd ${{ secrets.PI_DEPLOY_PATH }} && git pull --ff-only && docker compose up -d --build"
+              "$PI_USERNAME@$CF_SSH_HOSTNAME" \
+              "cd $PI_DEPLOY_PATH && git pull --ff-only && docker compose up -d --build"
