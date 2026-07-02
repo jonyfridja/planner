@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@planner/shared": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
+    "primeflex": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.9.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
