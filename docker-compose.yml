@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-planner}
       POSTGRES_DB: ${DB_NAME:-planner}
     ports:
-      - "5432:5432"
+      - "${DB_HOST_PORT:-5432}:5432"
     volumes:
       - planner_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -41,17 +41,7 @@ services:
     depends_on:
       - api
     ports:
-      - "8080:80"
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    network_mode: host
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
-    depends_on:
-      - web
+      - "8000:80"
 
 volumes:
   planner_db_data:
