@@ -18,7 +18,9 @@ export function Header({
       <span className="text-2xl font-bold">Planner</span>
       <div className="flex align-items-center gap-3">
         <Button label="New Task" icon="pi pi-plus" onClick={onAddTask} />
+        <label htmlFor="current-user">Logged in as</label>
         <Dropdown
+          inputId="current-user"
           value={currentUserId}
           onChange={(e) => onChangeUser(e.value)}
           options={users.map((u) => ({ label: u.name, value: u.id }))}

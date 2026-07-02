@@ -1,46 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Task, TaskTypeSummary } from "@planner/shared";
+import type { Task, TaskTypeSummary, User } from "@planner/shared";
 import { Button } from "primereact/button";
+import { Dropdown } from "primereact/dropdown";
 import { Tag } from "primereact/tag";
 import { closeTask, deleteTask, reopenTask, transitionTask } from "../api/tasks";
 import { DynamicStatusForm } from "./DynamicStatusForm";
+import { StatusStepper } from "./StatusStepper";
 
 export function TaskDetail({
   task,
   taskType,
+  users,
   currentUserId,
   onDeleted,
   onError,
 }: {
   task: Task;
   taskType: TaskTypeSummary | undefined;
+  users: User[];
   currentUserId: string;
   onDeleted: () => void;
   onError: (message: string) => void;
 }) {
-  const [values, setValues] = useState<Record<string, unknown>>({});
+  const [values, setValues] = useState<Record<string, unknown>>(task.data ?? {});
+  const [nextAssigneeId, setNextAssigneeId] = useState(task.userId);
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    setValues(task.data ?? {});
+  }, [task.id, task.data]);
+
+  useEffect(() => {
+    setNextAssigneeId(task.userId);
+  }, [task.id, task.userId]);
+
   const onMutationError = (err: unknown) => onError((err as Error).message);
-  const onMutationSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    setValues({});
+  const onTaskUpdated = (updated: Task) => {
+    queryClient.setQueriesData<Task[]>({ queryKey: ["tasks"] }, (old) =>
+      old?.map((t) => (t.id === updated.id ? updated : t)),
+    );
   };
 
   const transitionMutation = useMutation({
-    mutationFn: (status: number) => transitionTask(task.id, { status, assigneeId: currentUserId, data: values }),
-    onSuccess: onMutationSuccess,
+    mutationFn: (status: number) => transitionTask(task.id, { status, assigneeId: nextAssigneeId, data: values }),
+    onSuccess: onTaskUpdated,
     onError: onMutationError,
   });
   const closeMutation = useMutation({
     mutationFn: () => closeTask(task.id, { assigneeId: currentUserId }),
-    onSuccess: onMutationSuccess,
+    onSuccess: onTaskUpdated,
     onError: onMutationError,
   });
   const reopenMutation = useMutation({
     mutationFn: () => reopenTask(task.id, { assigneeId: currentUserId }),
-    onSuccess: onMutationSuccess,
+    onSuccess: onTaskUpdated,
     onError: onMutationError,
   });
   const deleteMutation = useMutation({
@@ -54,6 +68,18 @@ export function TaskDetail({
 
   const nextStatus = taskType?.statuses.find((s) => s.value === task.status + 1);
   const initialStatus = taskType?.statuses[0]?.value ?? task.status;
+
+  const anyMutationPending =
+    transitionMutation.isPending || closeMutation.isPending || reopenMutation.isPending || deleteMutation.isPending;
+
+  const isNextFormValid =
+    !nextStatus ||
+    nextStatus.fields.every((field) => {
+      if (!field.required) return true;
+      const value = values[field.name];
+      if (field.type === "number") return typeof value === "number" && !Number.isNaN(value);
+      return value !== undefined && value !== null && String(value).trim() !== "";
+    });
 
   return (
     <div className="flex flex-column gap-4 max-w-30rem">
@@ -74,18 +100,35 @@ export function TaskDetail({
         </div>
       </div>
 
+      {taskType && <StatusStepper statuses={taskType.statuses} currentStatus={task.status} />}
+
       {!task.closed && (
         <div className="flex flex-column gap-3">
+          <div className="flex flex-column gap-2">
+            <label htmlFor="next-assignee">Assign to</label>
+            <Dropdown
+              inputId="next-assignee"
+              value={nextAssigneeId}
+              onChange={(e) => setNextAssigneeId(e.value)}
+              options={users.map((u) => ({ label: u.name, value: u.id }))}
+              placeholder="Choose user"
+              disabled={anyMutationPending}
+              className="w-full"
+            />
+          </div>
+
           {nextStatus && (
             <>
               <DynamicStatusForm
                 fields={nextStatus.fields}
                 values={values}
                 onChange={(name, value) => setValues((prev) => ({ ...prev, [name]: value }))}
+                disabled={anyMutationPending}
               />
               <Button
                 label={`Advance to "${nextStatus.label}"`}
-                loading={transitionMutation.isPending}
+                loading={transitionMutation.isPending && transitionMutation.variables === nextStatus.value}
+                disabled={!isNextFormValid || !nextAssigneeId || anyMutationPending}
                 onClick={() => transitionMutation.mutate(nextStatus.value)}
               />
             </>
@@ -97,7 +140,8 @@ export function TaskDetail({
                 label="Move back"
                 severity="secondary"
                 outlined
-                loading={transitionMutation.isPending}
+                loading={transitionMutation.isPending && transitionMutation.variables === task.status - 1}
+                disabled={!nextAssigneeId || anyMutationPending}
                 onClick={() => transitionMutation.mutate(task.status - 1)}
               />
             )}
@@ -107,6 +151,7 @@ export function TaskDetail({
                 label="Close"
                 severity="success"
                 loading={closeMutation.isPending}
+                disabled={anyMutationPending}
                 onClick={() => closeMutation.mutate()}
               />
             )}
@@ -116,6 +161,7 @@ export function TaskDetail({
               severity="danger"
               outlined
               loading={deleteMutation.isPending}
+              disabled={anyMutationPending}
               onClick={() => deleteMutation.mutate()}
             />
           </div>
@@ -123,7 +169,12 @@ export function TaskDetail({
       )}
 
       {task.closed && (
-        <Button label="Reopen" loading={reopenMutation.isPending} onClick={() => reopenMutation.mutate()} />
+        <Button
+          label="Reopen"
+          loading={reopenMutation.isPending}
+          disabled={reopenMutation.isPending}
+          onClick={() => reopenMutation.mutate()}
+        />
       )}
     </div>
   );

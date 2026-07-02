@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom";
 import { Message } from "primereact/message";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { fetchTasks } from "./api/tasks";
 import { fetchTaskTypes } from "./api/taskTypes";
 import { fetchUsers } from "./api/users";
@@ -10,8 +12,9 @@ import { TaskDetail } from "./components/TaskDetail";
 import { AddTaskDialog } from "./components/AddTaskDialog";
 
 export function App() {
+  const { taskId: selectedTaskId = null } = useParams();
+  const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -42,11 +45,18 @@ export function App() {
     enabled: !onlyMine || !!currentUserId,
   });
   const tasks = tasksQuery.data ?? [];
+  const isInitialLoading = taskTypesQuery.isLoading || usersQuery.isLoading;
 
   const loadError = tasksQuery.error ?? taskTypesQuery.error ?? usersQuery.error;
   const displayError = error ?? (loadError ? (loadError as Error).message : null);
 
   const selectedTask = tasks.find((t) => t.id === selectedTaskId);
+
+  useEffect(() => {
+    if (selectedTaskId && tasksQuery.data && !tasksQuery.data.some((t) => t.id === selectedTaskId)) {
+      navigate("/", { replace: true });
+    }
+  }, [selectedTaskId, tasksQuery.data, navigate]);
 
   return (
     <div className="flex flex-column" style={{ height: "100vh" }}>
@@ -57,31 +67,40 @@ export function App() {
         onAddTask={() => setIsAddDialogOpen(true)}
       />
       {displayError && <Message severity="error" text={displayError} className="w-full" />}
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          tasks={tasks}
-          taskTypes={taskTypes}
-          selectedTaskId={selectedTaskId}
-          onSelect={setSelectedTaskId}
-          search={search}
-          onSearchChange={setSearch}
-          onlyMine={onlyMine}
-          onOnlyMineChange={setOnlyMine}
-        />
-        <main className="flex-1 overflow-y-auto p-5">
-          {selectedTask ? (
-            <TaskDetail
-              task={selectedTask}
-              taskType={taskTypes.find((t) => t.type === selectedTask.taskType)}
-              currentUserId={currentUserId}
-              onDeleted={() => setSelectedTaskId(null)}
-              onError={setError}
-            />
-          ) : (
-            <p className="text-color-secondary">Select a task from the sidebar to view it here.</p>
-          )}
-        </main>
-      </div>
+      {isInitialLoading ? (
+        <div className="flex flex-1 align-items-center justify-content-center">
+          <ProgressSpinner />
+        </div>
+      ) : (
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar
+            tasks={tasks}
+            taskTypes={taskTypes}
+            selectedTaskId={selectedTaskId}
+            onSelect={(id) => navigate(`/tasks/${id}`)}
+            search={search}
+            onSearchChange={setSearch}
+            onlyMine={onlyMine}
+            onOnlyMineChange={setOnlyMine}
+            isLoading={tasksQuery.isLoading}
+            isRefetching={tasksQuery.isFetching && !tasksQuery.isLoading}
+          />
+          <main className="flex-1 overflow-y-auto p-5">
+            {selectedTask ? (
+              <TaskDetail
+                task={selectedTask}
+                taskType={taskTypes.find((t) => t.type === selectedTask.taskType)}
+                users={users}
+                currentUserId={currentUserId}
+                onDeleted={() => navigate("/")}
+                onError={setError}
+              />
+            ) : (
+              <p className="text-color-secondary">Select a task from the sidebar to view it here.</p>
+            )}
+          </main>
+        </div>
+      )}
       <AddTaskDialog
         visible={isAddDialogOpen}
         onHide={() => setIsAddDialogOpen(false)}
@@ -89,7 +108,7 @@ export function App() {
         users={users}
         defaultAssigneeId={currentUserId}
         onCreated={(taskId) => {
-          setSelectedTaskId(taskId);
+          navigate(`/tasks/${taskId}`);
           setIsAddDialogOpen(false);
         }}
         onError={setError}

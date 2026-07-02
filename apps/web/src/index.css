@@ -1,3 +1,40 @@
+:root {
+  /* PrimeFlex 4 utilities read `--p-*` design tokens, but the classic
+     lara-light-blue theme.css only defines the unprefixed variables.
+     Alias them so PrimeFlex color utilities resolve. */
+  --p-surface-0: var(--surface-0);
+  --p-surface-50: var(--surface-50);
+  --p-surface-100: var(--surface-100);
+  --p-surface-200: var(--surface-200);
+  --p-surface-300: var(--surface-300);
+  --p-surface-400: var(--surface-400);
+  --p-surface-500: var(--surface-500);
+  --p-surface-600: var(--surface-600);
+  --p-surface-700: var(--surface-700);
+  --p-surface-800: var(--surface-800);
+  --p-surface-900: var(--surface-900);
+  --p-surface-ground: var(--surface-ground);
+  --p-surface-section: var(--surface-section);
+  --p-surface-card: var(--surface-card);
+  --p-surface-overlay: var(--surface-overlay);
+  --p-surface-border: var(--surface-border);
+  --p-surface-hover: var(--surface-hover);
+  --p-primary-50: var(--primary-50);
+  --p-primary-100: var(--primary-100);
+  --p-primary-200: var(--primary-200);
+  --p-primary-300: var(--primary-300);
+  --p-primary-400: var(--primary-400);
+  --p-primary-500: var(--primary-500);
+  --p-primary-600: var(--primary-600);
+  --p-primary-700: var(--primary-700);
+  --p-primary-800: var(--primary-800);
+  --p-primary-900: var(--primary-900);
+  --p-primary-color: var(--primary-color);
+  --p-primary-contrast-color: var(--primary-color-text);
+  --p-text-color: var(--text-color);
+  --p-text-muted-color: var(--text-color-secondary);
+}
+
 html,
 body,
 #root {

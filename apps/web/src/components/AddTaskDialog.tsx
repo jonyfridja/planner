@@ -55,20 +55,35 @@ export function AddTaskDialog({
   }
 
   return (
-    <Dialog header="New task" visible={visible} onHide={onHide} style={{ width: "28rem" }} modal>
+    <Dialog
+      header="New task"
+      visible={visible}
+      onHide={() => !createTaskMutation.isPending && onHide()}
+      closable={!createTaskMutation.isPending}
+      style={{ width: "28rem" }}
+      modal
+    >
       <form onSubmit={handleSubmit} className="flex flex-column gap-3 pt-2">
-        <InputText autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+        <InputText
+          autoFocus
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          disabled={createTaskMutation.isPending}
+        />
         <Dropdown
           value={taskType || taskTypes[0]?.type}
           onChange={(e) => setTaskType(e.value)}
           options={taskTypes.map((t) => ({ label: t.label, value: t.type }))}
           placeholder="Task type"
+          disabled={createTaskMutation.isPending}
         />
         <Dropdown
           value={assigneeId || defaultAssigneeId}
           onChange={(e) => setAssigneeId(e.value)}
           options={users.map((u) => ({ label: u.name, value: u.id }))}
           placeholder="Assignee"
+          disabled={createTaskMutation.isPending}
         />
         <Button type="submit" label="Create" loading={createTaskMutation.isPending} />
       </form>

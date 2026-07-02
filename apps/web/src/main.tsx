@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { PrimeReactProvider } from "primereact/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
@@ -20,7 +21,12 @@ createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <PrimeReactProvider>
-        <App />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/tasks/:taskId" element={<App />} />
+            <Route path="/" element={<App />} />
+          </Routes>
+        </BrowserRouter>
       </PrimeReactProvider>
     </QueryClientProvider>
   </StrictMode>,

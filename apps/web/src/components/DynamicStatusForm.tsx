@@ -6,9 +6,10 @@ interface DynamicStatusFormProps {
   fields: FieldDefinition[];
   values: Record<string, unknown>;
   onChange: (name: string, value: unknown) => void;
+  disabled?: boolean;
 }
 
-export function DynamicStatusForm({ fields, values, onChange }: DynamicStatusFormProps) {
+export function DynamicStatusForm({ fields, values, onChange, disabled }: DynamicStatusFormProps) {
   return (
     <div className="flex flex-column gap-3">
       {fields.map((field) => (
@@ -22,6 +23,7 @@ export function DynamicStatusForm({ fields, values, onChange }: DynamicStatusFor
               inputId={field.name}
               value={values[field.name] == null ? null : Number(values[field.name])}
               onValueChange={(e) => onChange(field.name, e.value)}
+              disabled={disabled}
               className="w-full"
             />
           ) : (
@@ -30,6 +32,7 @@ export function DynamicStatusForm({ fields, values, onChange }: DynamicStatusFor
               required={field.required}
               value={String(values[field.name] ?? "")}
               onChange={(e) => onChange(field.name, e.target.value)}
+              disabled={disabled}
               className="w-full"
             />
           )}
