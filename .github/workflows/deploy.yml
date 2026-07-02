@@ -16,8 +16,11 @@ jobs:
     steps:
       - name: Install cloudflared
         run: |
+          # Pinned to 2026.5.1: 2026.6.0+ has a regression where `access ssh` ignores
+          # service-token credentials and falls back to interactive browser auth.
+          # https://github.com/cloudflare/cloudflared/issues/1673
           curl -L --output cloudflared.deb \
-            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+            https://github.com/cloudflare/cloudflared/releases/download/2026.5.1/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
 
       - name: Set up deploy key
