@@ -8,8 +8,6 @@ export class TaskTypesController {
 
   @Get()
   list(): TaskTypeSummary[] {
-    console.log('this.registry.list()', this.registry.list());
-
     return this.registry.list().map((definition) => ({
       type: definition.type,
       label: definition.label,
