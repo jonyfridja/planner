@@ -9,6 +9,8 @@ const seedUsers: { email: string; name: string; roles: Role[] }[] = [
   { email: "carol@example.com", name: "Carol Clarke", roles: ["finance"] },
   { email: "dave@example.com", name: "Dave Diaz", roles: ["buyer", "finance"] },
   { email: "erin@example.com", name: "Erin Evans", roles: ["requester", "buyer"] },
+  { email: "frank@example.com", name: "Frank Foster", roles: ["developer"] },
+  { email: "grace@example.com", name: "Grace Green", roles: ["analyst", "publisher"] },
 ];
 
 async function seed() {
@@ -52,6 +54,33 @@ async function seed() {
       closed: false,
       data: { quote1: "900 USD", quote2: "950 USD", receipt: "receipt-monitors-001" },
       assigneeEmail: "carol@example.com",
+    },
+    {
+      title: "Build reporting dashboard",
+      taskType: "development",
+      status: 1,
+      closed: false,
+      data: {},
+      assigneeEmail: "erin@example.com",
+    },
+    {
+      title: "Add dark mode toggle",
+      taskType: "development",
+      status: 2,
+      closed: false,
+      data: { specification: "Add a dark mode toggle to the settings page" },
+      assigneeEmail: "grace@example.com",
+    },
+    {
+      title: "Ship mobile app v2",
+      taskType: "development",
+      status: 3,
+      closed: false,
+      data: {
+        specification: "Rebuild the mobile app on the new design system",
+        branchName: "feature/mobile-v2",
+      },
+      assigneeEmail: "frank@example.com",
     },
   ];
 
