@@ -12,14 +12,12 @@ export function TaskDetail({
   task,
   taskType,
   users,
-  currentUserId,
   onDeleted,
   onError,
 }: {
   task: Task;
   taskType: TaskTypeSummary | undefined;
   users: User[];
-  currentUserId: string;
   onDeleted: () => void;
   onError: (message: string) => void;
 }) {
@@ -48,12 +46,12 @@ export function TaskDetail({
     onError: onMutationError,
   });
   const closeMutation = useMutation({
-    mutationFn: () => closeTask(task.id, { assigneeId: currentUserId }),
+    mutationFn: () => closeTask(task.id, { assigneeId: nextAssigneeId }),
     onSuccess: onTaskUpdated,
     onError: onMutationError,
   });
   const reopenMutation = useMutation({
-    mutationFn: () => reopenTask(task.id, { assigneeId: currentUserId }),
+    mutationFn: () => reopenTask(task.id, { assigneeId: nextAssigneeId }),
     onSuccess: onTaskUpdated,
     onError: onMutationError,
   });
@@ -67,10 +65,12 @@ export function TaskDetail({
   });
 
   const nextStatus = taskType?.statuses.find((s) => s.value === task.status + 1);
+  const currentStatus = taskType?.statuses.find((s) => s.value === task.status);
   const initialStatus = taskType?.statuses[0]?.value ?? task.status;
-  const eligibleUsers = nextStatus
-    ? users.filter((u) => u.roles.includes(nextStatus.requiredRole))
-    : users;
+  // Forward moves need the next step's role; at the final status (closing/reopening)
+  // there is no "next" step, so the current step's role applies instead.
+  const assignRole = (nextStatus ?? currentStatus)?.requiredRole;
+  const eligibleUsers = assignRole ? users.filter((u) => u.roles.includes(assignRole)) : users;
 
   const anyMutationPending =
     transitionMutation.isPending || closeMutation.isPending || reopenMutation.isPending || deleteMutation.isPending;
@@ -105,21 +105,21 @@ export function TaskDetail({
 
       {taskType && <StatusStepper statuses={taskType.statuses} currentStatus={task.status} />}
 
+      <div className="flex flex-column gap-2">
+        <label htmlFor="next-assignee">Assign to</label>
+        <Dropdown
+          inputId="next-assignee"
+          value={nextAssigneeId}
+          onChange={(e) => setNextAssigneeId(e.value)}
+          options={eligibleUsers.map((u) => ({ label: u.name, value: u.id }))}
+          placeholder="Choose user"
+          disabled={anyMutationPending}
+          className="w-full"
+        />
+      </div>
+
       {!task.closed && (
         <div className="flex flex-column gap-3">
-          <div className="flex flex-column gap-2">
-            <label htmlFor="next-assignee">Assign to</label>
-            <Dropdown
-              inputId="next-assignee"
-              value={nextAssigneeId}
-              onChange={(e) => setNextAssigneeId(e.value)}
-              options={eligibleUsers.map((u) => ({ label: u.name, value: u.id }))}
-              placeholder="Choose user"
-              disabled={anyMutationPending}
-              className="w-full"
-            />
-          </div>
-
           {nextStatus && (
             <>
               <DynamicStatusForm
@@ -154,7 +154,7 @@ export function TaskDetail({
                 label="Close"
                 severity="success"
                 loading={closeMutation.isPending}
-                disabled={anyMutationPending}
+                disabled={!nextAssigneeId || anyMutationPending}
                 onClick={() => closeMutation.mutate()}
               />
             )}
@@ -175,7 +175,7 @@ export function TaskDetail({
         <Button
           label="Reopen"
           loading={reopenMutation.isPending}
-          disabled={reopenMutation.isPending}
+          disabled={!nextAssigneeId || reopenMutation.isPending}
           onClick={() => reopenMutation.mutate()}
         />
       )}

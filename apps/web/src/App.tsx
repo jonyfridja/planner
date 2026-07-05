@@ -91,7 +91,6 @@ export function App() {
                 task={selectedTask}
                 taskType={taskTypes.find((t) => t.type === selectedTask.taskType)}
                 users={users}
-                currentUserId={currentUserId}
                 onDeleted={() => navigate("/")}
                 onError={setError}
               />
