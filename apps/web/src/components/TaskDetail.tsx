@@ -68,6 +68,9 @@ export function TaskDetail({
 
   const nextStatus = taskType?.statuses.find((s) => s.value === task.status + 1);
   const initialStatus = taskType?.statuses[0]?.value ?? task.status;
+  const eligibleUsers = nextStatus
+    ? users.filter((u) => u.roles.includes(nextStatus.requiredRole))
+    : users;
 
   const anyMutationPending =
     transitionMutation.isPending || closeMutation.isPending || reopenMutation.isPending || deleteMutation.isPending;
@@ -110,7 +113,7 @@ export function TaskDetail({
               inputId="next-assignee"
               value={nextAssigneeId}
               onChange={(e) => setNextAssigneeId(e.value)}
-              options={users.map((u) => ({ label: u.name, value: u.id }))}
+              options={eligibleUsers.map((u) => ({ label: u.name, value: u.id }))}
               placeholder="Choose user"
               disabled={anyMutationPending}
               className="w-full"

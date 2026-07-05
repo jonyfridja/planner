@@ -28,13 +28,26 @@ export function AddTaskDialog({
   const [taskType, setTaskType] = useState(taskTypes[0]?.type ?? "");
   const [assigneeId, setAssigneeId] = useState(defaultAssigneeId);
 
+  const resolvedTaskType = taskType || taskTypes[0]?.type;
+  const initialStatus = taskTypes.find((t) => t.type === resolvedTaskType)?.statuses[0];
+  const eligibleUsers = initialStatus
+    ? users.filter((u) => u.roles.includes(initialStatus.requiredRole))
+    : users;
+
   useEffect(() => {
     if (visible) {
       setTitle("");
       setTaskType(taskTypes[0]?.type ?? "");
-      setAssigneeId(defaultAssigneeId);
     }
-  }, [visible, taskTypes, defaultAssigneeId]);
+  }, [visible, taskTypes]);
+
+  useEffect(() => {
+    if (!eligibleUsers.some((u) => u.id === assigneeId)) {
+      setAssigneeId(
+        eligibleUsers.some((u) => u.id === defaultAssigneeId) ? defaultAssigneeId : eligibleUsers[0]?.id ?? "",
+      );
+    }
+  }, [resolvedTaskType, users, visible, assigneeId, defaultAssigneeId, eligibleUsers]);
 
   const queryClient = useQueryClient();
   const createTaskMutation = useMutation({
@@ -49,9 +62,8 @@ export function AddTaskDialog({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const type = taskType || taskTypes[0]?.type;
-    const assignee = assigneeId || defaultAssigneeId;
-    if (!title.trim() || !type || !assignee) return;
-    createTaskMutation.mutate({ title, taskType: type, assigneeId: assignee });
+    if (!title.trim() || !type || !assigneeId) return;
+    createTaskMutation.mutate({ title, taskType: type, assigneeId });
   }
 
   return (
@@ -79,9 +91,9 @@ export function AddTaskDialog({
           disabled={createTaskMutation.isPending}
         />
         <Dropdown
-          value={assigneeId || defaultAssigneeId}
+          value={assigneeId}
           onChange={(e) => setAssigneeId(e.value)}
-          options={users.map((u) => ({ label: u.name, value: u.id }))}
+          options={eligibleUsers.map((u) => ({ label: u.name, value: u.id }))}
           placeholder="Assignee"
           disabled={createTaskMutation.isPending}
         />
