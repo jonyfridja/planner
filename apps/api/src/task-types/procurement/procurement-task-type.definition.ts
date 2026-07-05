@@ -10,7 +10,7 @@ import { SupplierOffersReceivedDataDto } from "./dto/supplier-offers-received.dt
 import { PurchaseCompletedDataDto } from "./dto/purchase-completed.dto";
 
 const STATUSES: StatusDefinition[] = [
-  { value: 1, label: "Created", fields: [] },
+  { value: 1, label: "Created", fields: [], requiredRole: "requester" },
   {
     value: 2,
     label: "Supplier offers received",
@@ -19,12 +19,14 @@ const STATUSES: StatusDefinition[] = [
       { name: "quote1", label: "Price Quote 1", type: "string", required: true },
       { name: "quote2", label: "Price Quote 2", type: "string", required: true },
     ],
+    requiredRole: "buyer",
   },
   {
     value: 3,
     label: "Purchase completed",
     dataSchema: PurchaseCompletedDataDto,
     fields: [{ name: "receipt", label: "Receipt", type: "string", required: true }],
+    requiredRole: "finance",
   },
 ];
 

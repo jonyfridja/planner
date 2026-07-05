@@ -34,6 +34,7 @@ describe("Procurement task workflow (e2e)", () => {
       userRepo.create({
         email: `workflow-test-${Date.now()}@example.com`,
         name: "Workflow Tester",
+        roles: ["requester", "buyer", "finance"],
       }),
     );
     userId = user.id;

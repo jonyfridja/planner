@@ -34,10 +34,18 @@ describe("GET /tasks search and assignee filters (e2e)", () => {
     taskRepo = moduleRef.get(getRepositoryToken(Task));
 
     const userA = await userRepo.save(
-      userRepo.create({ email: `search-test-a-${Date.now()}@example.com`, name: "Search Tester A" }),
+      userRepo.create({
+        email: `search-test-a-${Date.now()}@example.com`,
+        name: "Search Tester A",
+        roles: ["requester"],
+      }),
     );
     const userB = await userRepo.save(
-      userRepo.create({ email: `search-test-b-${Date.now()}@example.com`, name: "Search Tester B" }),
+      userRepo.create({
+        email: `search-test-b-${Date.now()}@example.com`,
+        name: "Search Tester B",
+        roles: ["requester"],
+      }),
     );
     userAId = userA.id;
     userBId = userB.id;

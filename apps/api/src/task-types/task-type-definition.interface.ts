@@ -1,11 +1,12 @@
 import type { ClassConstructor } from "class-transformer";
-import type { FieldDefinition } from "@planner/shared";
+import type { FieldDefinition, Role } from "@planner/shared";
 
 export interface StatusDefinition {
   value: number;
   label: string;
   dataSchema?: ClassConstructor<object>;
   fields: FieldDefinition[];
+  requiredRole: Role;
 }
 
 export interface DataValidationResult {

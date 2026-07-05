@@ -15,6 +15,7 @@ export class TaskTypesController {
         value: s.value,
         label: s.label,
         fields: s.fields,
+        requiredRole: s.requiredRole,
       })),
       finalStatus: definition.getFinalStatus(),
     }));

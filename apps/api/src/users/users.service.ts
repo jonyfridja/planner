@@ -11,7 +11,7 @@ export class UsersService {
 
   findAll(): Promise<User[]> {
     return this.usersRepo.find({
-      select: ["id", "email", "name"],
+      select: ["id", "email", "name", "roles"],
       order: { name: "ASC" },
     });
   }
