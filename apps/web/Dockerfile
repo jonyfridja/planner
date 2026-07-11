@@ -8,6 +8,14 @@ COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
+
+# Vite inlines VITE_-prefixed env vars into the built bundle at build time, so they
+# must be passed as build args rather than read at container runtime.
+ARG VITE_UMAMI_SRC
+ARG VITE_UMAMI_WEBSITE_ID
+ENV VITE_UMAMI_SRC=$VITE_UMAMI_SRC
+ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
+
 RUN pnpm turbo run build --filter=@planner/web...
 
 FROM nginx:alpine AS runner

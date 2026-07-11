@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Message } from "primereact/message";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { fetchTasks } from "./api/tasks";
@@ -14,6 +14,7 @@ import { AddTaskDialog } from "./components/AddTaskDialog";
 export function App() {
   const { taskId: selectedTaskId = null } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentUserId, setCurrentUserId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -25,6 +26,10 @@ export function App() {
     const handle = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(handle);
   }, [search]);
+
+  useEffect(() => {
+    window.umami?.track();
+  }, [location.pathname]);
 
   const taskTypesQuery = useQuery({ queryKey: ["taskTypes"], queryFn: fetchTaskTypes });
   const usersQuery = useQuery({ queryKey: ["users"], queryFn: fetchUsers });

@@ -6,6 +6,7 @@
       "dependsOn": [
         "^build"
       ],
+      "env": ["VITE_UMAMI_SRC", "VITE_UMAMI_WEBSITE_ID"],
       "outputs": [
         "dist/**",
         ".next/**"

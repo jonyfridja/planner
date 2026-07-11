@@ -37,11 +37,32 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        VITE_UMAMI_SRC: ${VITE_UMAMI_SRC:-}
+        VITE_UMAMI_WEBSITE_ID: ${VITE_UMAMI_WEBSITE_ID:-}
     restart: unless-stopped
     depends_on:
       - api
     ports:
       - "8000:80"
+
+  # --- Web activity tracking (Phase 3) ---
+  # Reuses the existing `db` Postgres container (separate `umami` database).
+  # Unlike the ops dashboards below, this needs to be reachable by real visitors'
+  # browsers (tracking script + collect endpoint), so it is NOT gated behind the
+  # "monitoring" profile. Create the database once before first boot:
+  #   docker compose exec db psql -U ${DB_USERNAME:-planner} -c "CREATE DATABASE umami;"
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-planner}:${DB_PASSWORD:-planner}@db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET}
+    ports:
+      - "${UMAMI_PORT:-3002}:3000"
 
   # --- Monitoring (Phase 1: near-zero-config) ---
   # Ops dashboards below are published on the Pi's ports but intentionally NOT
@@ -83,6 +104,36 @@ services:
       - "${DOZZLE_PORT:-8888}:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # --- Error tracking (Phase 4) ---
+  # Reuses the existing `db` Postgres container (separate `glitchtip` database).
+  # GlitchTip's own dashboard is ops-only, like the monitors above — reach it over
+  # SSH tunnel/LAN/Tailscale rather than the public Cloudflare Tunnel. `api` always
+  # needs to be able to report errors to it, so it is not gated behind the
+  # "monitoring" profile. Create the database once before first boot:
+  #   docker compose exec db psql -U ${DB_USERNAME:-planner} -c "CREATE DATABASE glitchtip;"
+  glitchtip-redis:
+    image: redis:alpine
+    restart: unless-stopped
+
+  glitchtip:
+    image: glitchtip/glitchtip
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      glitchtip-redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-planner}:${DB_PASSWORD:-planner}@db:5432/glitchtip
+      REDIS_URL: redis://glitchtip-redis:6379
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY}
+      PORT: 8000
+      EMAIL_URL: ${GLITCHTIP_EMAIL_URL:-consolemail://}
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:${GLITCHTIP_PORT:-8001}}
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_DEFAULT_FROM_EMAIL:-glitchtip@localhost}
+    ports:
+      - "${GLITCHTIP_PORT:-8001}:8000"
 
 volumes:
   planner_db_data:

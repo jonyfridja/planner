@@ -15,6 +15,19 @@ if (!root) {
   throw new Error("Root element not found");
 }
 
+const umamiSrc = import.meta.env.VITE_UMAMI_SRC;
+const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+if (umamiSrc && umamiWebsiteId) {
+  const script = document.createElement("script");
+  script.defer = true;
+  script.src = umamiSrc;
+  script.setAttribute("data-website-id", umamiWebsiteId);
+  // The SPA route-change tracking in App.tsx sends its own pageviews, so let it
+  // own the initial load too rather than double-counting it here.
+  script.setAttribute("data-auto-track", "false");
+  document.head.appendChild(script);
+}
+
 const queryClient = new QueryClient();
 
 createRoot(root).render(

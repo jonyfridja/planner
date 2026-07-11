@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
+import * as Sentry from "@sentry/node";
 import type { Request, Response } from "express";
 
 @Catch()
@@ -22,6 +23,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       request.log.error({ err: exception }, `Unhandled exception: ${request.method} ${request.url}`);
+      Sentry.captureException(exception);
     } else {
       request.log.warn({ err: exception }, `Request error: ${request.method} ${request.url}`);
     }

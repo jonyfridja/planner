@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { LoggerModule } from "nestjs-pino";
 import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 import { buildTypeOrmOptions } from "./config/typeorm.config";
+import { HealthModule } from "./health/health.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { TaskTypesModule } from "./task-types/task-types.module";
 import { UsersModule } from "./users/users.module";
@@ -28,6 +29,7 @@ import { UsersModule } from "./users/users.module";
     TaskTypesModule,
     UsersModule,
     TasksModule,
+    HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
