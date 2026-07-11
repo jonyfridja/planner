@@ -43,5 +43,47 @@ services:
     ports:
       - "8000:80"
 
+  # --- Monitoring (Phase 1: near-zero-config) ---
+  # Ops dashboards below are published on the Pi's ports but intentionally NOT
+  # wired into the public Cloudflare Tunnel — reach them over SSH tunnel/LAN/Tailscale.
+  # Gated behind the "monitoring" profile so plain local-dev `docker compose up -d`
+  # doesn't also mount the host's /proc, /sys, and docker.sock. Enable on the deploy
+  # host by setting COMPOSE_PROFILES=monitoring in the root .env there.
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    ports:
+      - "${UPTIME_KUMA_PORT:-3001}:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+
+  netdata:
+    image: netdata/netdata:stable
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    hostname: planner-pi
+    ports:
+      - "${NETDATA_PORT:-19999}:19999"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    ports:
+      - "${DOZZLE_PORT:-8888}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
 volumes:
   planner_db_data:
+  uptime_kuma_data:
