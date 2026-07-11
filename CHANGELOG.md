@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jonyfridja/planner/compare/v1.0.0...v1.1.0) (2026-07-11)
+
+
+### Features
+
+* added umami and be health check ([bd34c1b](https://github.com/jonyfridja/planner/commit/bd34c1b7a2adaf9ed0eb3357f504be12a9394327))
+
 # 1.0.0 (2026-07-11)
 
 
