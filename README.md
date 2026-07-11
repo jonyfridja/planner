@@ -50,3 +50,12 @@ pnpm test
 
 This runs the API's e2e test suite (`apps/api/test/*.e2e-spec.ts`) against the database
 started above.
+
+### Pi commands
+
+- To check monitoring apps forward ports:
+ ssh -N \
+  -L 3001:localhost:3001 \
+  -L 19999:localhost:19999 \
+  -L 8888:localhost:8888 \
+  user@ip
