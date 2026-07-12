@@ -1,9 +1,10 @@
 import type { Role } from "./role.js";
+import type { TaskFieldType } from "../consts/index.js";
 
 export interface FieldDefinition {
   name: string;
   label: string;
-  type: "string" | "number" | "boolean";
+  type: (typeof TaskFieldType)[keyof typeof TaskFieldType];
   required: boolean;
 }
 

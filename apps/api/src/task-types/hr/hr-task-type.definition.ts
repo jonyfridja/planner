@@ -7,57 +7,53 @@ import type {
   StatusDefinition,
   TaskTypeDefinition,
 } from "../task-type-definition.interface";
-import { SpecificationCompletedDataDto } from "./dto/specification-completed.dto";
-import { DevelopmentCompletedDataDto } from "./dto/development-completed.dto";
-import { DistributionCompletedDataDto } from "./dto/distribution-completed.dto";
+import { Step1DataDto } from "./dto/step1.dto";
 
 const STATUSES: StatusDefinition[] = [
   { value: 1, label: "Created", fields: [], requiredRole: "requester" },
   {
     value: 2,
-    label: "Specification completed",
-    dataSchema: SpecificationCompletedDataDto,
+    label: "Budget",
+    dataSchema: Step1DataDto,
     fields: [
-      { name: "specification", label: "Specification", type: TaskFieldType.STRING, required: true },
+      {
+        name: "budget",
+        label: "Budget",
+        type: TaskFieldType.NUMBER,
+        required: true,
+      },
+      {
+        name: "dueDate",
+        label: "Due Date",
+        type: TaskFieldType.DATE,
+        required: true,
+      },
     ],
-    requiredRole: "analyst",
-  },
-  {
-    value: 3,
-    label: "Development completed",
-    dataSchema: DevelopmentCompletedDataDto,
-    fields: [
-      { name: "branchName", label: "Branch Name", type: TaskFieldType.STRING, required: true },
-    ],
-    requiredRole: "developer",
-  },
-  {
-    value: 4,
-    label: "Distribution completed",
-    dataSchema: DistributionCompletedDataDto,
-    fields: [{ name: "version", label: "Version", type: TaskFieldType.STRING, required: true }],
-    requiredRole: "publisher",
+    requiredRole: "hr",
   },
 ];
 
 @Injectable()
-export class DevelopmentTaskTypeDefinition implements TaskTypeDefinition {
-  readonly type = "development";
-  readonly label = "Development Task";
+export class HRTaskTypeDefinition implements TaskTypeDefinition {
+  readonly type = "hr";
+  readonly label = "HR Task";
 
   getStatuses(): StatusDefinition[] {
     return STATUSES;
   }
 
   getFinalStatus(): number {
-    return 4;
+    return 2;
   }
 
   getStatus(value: number): StatusDefinition | undefined {
     return STATUSES.find((s) => s.value === value);
   }
 
-  async validateData(status: number, data: unknown): Promise<DataValidationResult> {
+  async validateData(
+    status: number,
+    data: unknown,
+  ): Promise<DataValidationResult> {
     const statusDef = this.getStatus(status);
     if (!statusDef) {
       return { valid: false, errors: [`Unknown status ${status}`] };

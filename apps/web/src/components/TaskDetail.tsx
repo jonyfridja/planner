@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Task, TaskTypeSummary, User } from "@planner/shared";
+import { TaskFieldType, type Task, type TaskTypeSummary, type User } from "@planner/shared";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { Tag } from "primereact/tag";
@@ -80,7 +80,7 @@ export function TaskDetail({
     nextStatus.fields.every((field) => {
       if (!field.required) return true;
       const value = values[field.name];
-      if (field.type === "number") return typeof value === "number" && !Number.isNaN(value);
+      if (field.type === TaskFieldType.NUMBER) return typeof value === "number" && !Number.isNaN(value);
       return value !== undefined && value !== null && String(value).trim() !== "";
     });
 

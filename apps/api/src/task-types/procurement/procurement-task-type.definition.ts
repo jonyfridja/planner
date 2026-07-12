@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { plainToInstance, instanceToPlain } from "class-transformer";
 import { validate } from "class-validator";
+import { TaskFieldType } from "@planner/shared";
 import type {
   DataValidationResult,
   StatusDefinition,
@@ -16,8 +17,8 @@ const STATUSES: StatusDefinition[] = [
     label: "Supplier offers received",
     dataSchema: SupplierOffersReceivedDataDto,
     fields: [
-      { name: "quote1", label: "Price Quote 1", type: "string", required: true },
-      { name: "quote2", label: "Price Quote 2", type: "string", required: true },
+      { name: "quote1", label: "Price Quote 1", type: TaskFieldType.STRING, required: true },
+      { name: "quote2", label: "Price Quote 2", type: TaskFieldType.STRING, required: true },
     ],
     requiredRole: "buyer",
   },
@@ -25,7 +26,7 @@ const STATUSES: StatusDefinition[] = [
     value: 3,
     label: "Purchase completed",
     dataSchema: PurchaseCompletedDataDto,
-    fields: [{ name: "receipt", label: "Receipt", type: "string", required: true }],
+    fields: [{ name: "receipt", label: "Receipt", type: TaskFieldType.STRING, required: true }],
     requiredRole: "finance",
   },
 ];

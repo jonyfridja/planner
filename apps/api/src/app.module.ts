@@ -9,6 +9,7 @@ import { HealthModule } from "./health/health.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { TaskTypesModule } from "./task-types/task-types.module";
 import { UsersModule } from "./users/users.module";
+import { HRModule } from "./task-types/hr/hr.module";
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UsersModule } from "./users/users.module";
     UsersModule,
     TasksModule,
     HealthModule,
+    HRModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
