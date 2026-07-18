@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/jonyfridja/planner/compare/v1.1.0...v1.2.0) (2026-07-18)
+
+
+### Bug Fixes
+
+* **shared:** tests build ([302dd77](https://github.com/jonyfridja/planner/commit/302dd7799c579c46aca4ec5478d3e4f88e78dc4d))
+
+
+### Features
+
+* add hr task type ([2b96857](https://github.com/jonyfridja/planner/commit/2b96857816cbcb5deb663d7bf80235c94112d1a9))
+
 # [1.1.0](https://github.com/jonyfridja/planner/compare/v1.0.0...v1.1.0) (2026-07-11)
 
 
