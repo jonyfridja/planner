@@ -1,15 +1,25 @@
 {
     "sqltools.connections": [
-        {
-            "ssh": "Disabled",
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 5432,
-            "driver": "PostgreSQL",
-            "name": "planner",
-            "database": "planner",
-            "username": "planner",
-            "password": "planner"
-        }
+      {
+        "ssh": "Disabled",
+        "previewLimit": 50,
+        "server": "localhost",
+        "port": 5432,
+        "driver": "PostgreSQL",
+        "name": "planner",
+        "database": "planner",
+        "username": "planner",
+        "password": "planner"
+      },
+      {
+        "ssh": "Disabled",
+        "previewLimit": 50,
+        "server": "rp-jony",
+        "port": 5432,
+        "driver": "PostgreSQL",
+        "name": "pi",
+        "database": "planner",
+        "username": "planner"
+      }
     ]
 }
