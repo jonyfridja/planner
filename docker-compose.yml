@@ -21,17 +21,13 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3000
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USERNAME: ${DB_USERNAME:-planner}
-      DB_PASSWORD: ${DB_PASSWORD:-planner}
-      DB_NAME: ${DB_NAME:-planner}
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - default
+      - shared-db-net
 
   web:
     build:
@@ -155,3 +151,10 @@ services:
 volumes:
   planner_db_data:
   uptime_kuma_data:
+
+networks:
+  # Pre-existing network where the production Postgres instance lives, shared
+  # across apps on the box. Created out-of-band (not by this compose file):
+  #   docker network create shared-db-net
+  shared-db-net:
+    external: true
