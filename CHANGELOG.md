@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/jonyfridja/planner/compare/v1.2.1...v1.2.2) (2026-07-18)
+
+
+### Bug Fixes
+
+* positions ([e27e9b5](https://github.com/jonyfridja/planner/commit/e27e9b5f8c7de838d417e7fbaa5c5e952fc7ba80))
+
 ## [1.2.1](https://github.com/jonyfridja/planner/compare/v1.2.0...v1.2.1) (2026-07-18)
 
 
