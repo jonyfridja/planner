@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/jonyfridja/planner/compare/v1.2.0...v1.2.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* proxy for positions ([75b3f59](https://github.com/jonyfridja/planner/commit/75b3f5972125cd8f2958845b7667d75b3945c6aa))
+
 # [1.2.0](https://github.com/jonyfridja/planner/compare/v1.1.0...v1.2.0) (2026-07-18)
 
 
